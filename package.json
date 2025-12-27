@@ -14,7 +14,8 @@
     "react": "^19.2.3",
     "@heroicons/react": "^2.2.0",
     "pdfjs-dist": "4.10.38",
-    "jspdf": "^3.0.4"
+    "jspdf": "^3.0.4",
+    "mammoth": "1.8.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { generateImage } from '../services/geminiService';
-import { SparklesIcon, PhotoIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, PhotoIcon, ArrowDownTrayIcon, KeyIcon } from '@heroicons/react/24/outline';
 
 const ImageGenerator: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -13,13 +13,28 @@ const ImageGenerator: React.FC = () => {
 
   const handleGenerate = async () => {
     if (!prompt) return;
+
+    // Check for API key selection when using high-quality models
+    if (typeof window.aistudio !== 'undefined') {
+      const hasKey = await window.aistudio.hasSelectedApiKey();
+      if (!hasKey) {
+        await window.aistudio.openSelectKey();
+        // Proceeding assuming selection was triggered
+      }
+    }
+
     setLoading(true);
     try {
       const url = await generateImage(prompt, aspectRatio);
       setImageUrl(url);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Failed to generate image');
+      if (err.message?.includes("Requested entity was not found")) {
+        // Prompt user to select a key again if request fails due to key permissions/billing
+        await window.aistudio?.openSelectKey();
+      } else {
+        alert('Failed to generate image');
+      }
     } finally {
       setLoading(false);
     }
@@ -29,6 +44,17 @@ const ImageGenerator: React.FC = () => {
     <div className="max-w-3xl mx-auto space-y-8">
       <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
         <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold text-slate-800">Visual Creator</h3>
+            <button 
+              onClick={() => window.aistudio?.openSelectKey()}
+              className="text-xs flex items-center text-indigo-600 hover:text-indigo-800 font-medium"
+            >
+              <KeyIcon className="w-3 h-3 mr-1" />
+              Switch API Key
+            </button>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Prompt</label>
             <textarea
@@ -80,6 +106,10 @@ const ImageGenerator: React.FC = () => {
               </span>
             )}
           </button>
+          
+          <p className="text-[10px] text-center text-slate-400">
+            Note: High-quality image generation using gemini-3-pro-image-preview requires a <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="underline hover:text-indigo-500">paid API key</a>.
+          </p>
         </div>
       </div>
 
