@@ -1,0 +1,8 @@
+{
+  "name": "UrduLink AI: PDF Translator & Creative Suite",
+  "description": "A sophisticated tool for translating scanned PDFs to Urdu using Gemini intelligence, featuring layout-aware OCR, image generation, video analysis, and a real-time AI assistant.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
